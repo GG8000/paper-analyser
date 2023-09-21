@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching-Improver</title>
+    <style>
+        textarea {
+            width: 300px;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>This Tool analyses given paper and return the methods which are used in it.</h1>
+    <form method="POST">
+        <label>Give me the dois you want to analyse</label>
+        <br />
+        <div id="input-div">
+            <textarea name="doi-input"></textarea>
+            <br />
+        </div>
+        <br />
+        <label>Which methods should be examined and analysed?</label>
+        <br />
+        <select name="selection">
+            <option value="r">R Packages</option>
+            <option>Option 2</option>
+            <option>Option 3</option>
+            <option>Option 4</option>
+        </select>
+        <br />
+        <input type="submit" value="Analyse">
+    </form>
+</body>
+
+</html>
