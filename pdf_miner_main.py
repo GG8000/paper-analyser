@@ -1,7 +1,9 @@
 import fitz
+import string
 import glob
 import os
 from helper import scrape_packages
+import re
 
 
 
@@ -22,44 +24,29 @@ def search_pdfs_for_keywords():
     after_intro = False
     words_list = []
     for page in document:
-        content_words = document[page.number].get_textpage().extractWORDS()
-        #content_words = document[2].get_textpage().extractWORDS()
-        for word in content_words:
-            # Search for Word Method
-            investigate_word = word[4]
-            #print(investigate_word.lower())
-            if investigate_word.lower() == "introduction":
-                after_intro = True
-                #print("Found Introduction")
-            if investigate_word.lower() == "methods":
-                method_found = True
-                #print("Found Methods")
-            if method_found and after_intro and not discussion_found:
-                words_list.append(investigate_word)
-            # Search for Word Result
-            if investigate_word.lower() == "discussion":
-                discussion_found = True
-                method_found = False
+        page_text = document[page.number].get_textpage().extractText()
+        print(page_text)
+        #page_text = document[2].get_textpage().extractWORDS()
         
-        #print(words_list)
-        #if len(words_list) == 0:
-            #print("Next Page")
+        
+
+        # Search for mentions of R packages within the methods section
+    
+        mentioned_packages = []
+    
+        for package_name in all_packages:
+            if re.search(rf'\b{package_name}\b', page_text, re.IGNORECASE):
+                    mentioned_packages.append(package_name)
+
+        # Print the mentioned R packages
+        print("Mentioned R Packages:", mentioned_packages)
+
+        ## PROBLEM HERE: PACKAGE NAMES ARE MOST OF THE TIME IN INVERTED COMMAS SO THE KEYWORDS DOESNT FIND IT
+
                 
         #check if package, packages, R or any related keywords are in the word list, and just take the surroundings of it
-        r_words = ["package", "packages", "R"]
-        r_words_index_in_words_list = []
-        for word in r_words:
-            print(word)
-            # go through every word and search it in the word_list.
-            # save indicies in array for further observations
-            if word in words_list:
-                r_words_index_in_words_list.append(words_list.index(word))
+        
             
-        for keyword in all_packages:    
-            # Go through words_list and check for keywords
-                
-            if "packages" or "packages" in words_list:
-                    keyword_search.append(keyword)
 
              
         
@@ -74,8 +61,71 @@ def search_pdfs_for_keywords():
     output.write(pdf_files + "\t" + str(keys) + "\n")
 
 
-print(search_pdfs_for_keywords())
+#print(search_pdfs_for_keywords())
 
+
+# Predefined list of R packages
+r_packages = scrape_packages()
+
+
+# Open the PDF file with PyMuPDF
+for pdf_files in glob.glob('*.pdf'):
+         #access pdf files
+        pdf_document = fitz.open(pdf_files)
+        # count pdf file pages
+        #document_page_numbers = document.pageCount
+
+# Initialize a variable to store the entire paper text
+entire_paper_text = ""
+
+# Iterate through each page
+for page_number in range(pdf_document.page_count):
+    page = pdf_document.load_page(page_number)
+    page_text = page.get_text()
+
+    # Append the text from the current page to the entire paper text
+    entire_paper_text += page_text
+
+# Find the positions of "package" or "packages" in the entire paper text
+package_positions = [match.start() for match in re.finditer(r'\bpackages?\b', entire_paper_text, re.IGNORECASE)]
+
+# Extract the surrounding text for further investigation
+surrounding_text = []
+for position in package_positions:
+    # Define the number of characters to include before and after the word
+    context_length = 75  # Adjust this value as needed
+
+    # Extract the surrounding text
+    start = max(0, position - context_length)
+    end = min(len(entire_paper_text), position + context_length + len("packages"))
+    context = entire_paper_text[start:end]
+
+    surrounding_text.append(context)
+
+# Define the regex pattern to match words in single or double quotes
+pattern = r'[“"‘]([^”"’]+)[“"’]*'
+
+text = "".join(surrounding_text)
+#print(text)
+# Use re.findall to find all words in quotes in the text
+found_words = re.findall(pattern, text)
+print(found_words)
+
+
+r_packages_used = [word for word in found_words if word in r_packages]
+
+## IMPLEMENT THAT IF found_words is empty, that it should search for package and in that surrounding for the names in the package
+
+print(r_packages_used)
+
+# Print the surrounding text for each occurrence of "package" or "packages"
+# for i, context in enumerate(surrounding_text, 1):
+#     print(f"Occurrence {i}:")
+#     print(context)
+#     print()
+
+# Close the PDF document
+pdf_document.close()
 
 
 
