@@ -26,7 +26,7 @@ def search_pdfs_for_keywords():
     words_list = []
     for page in document:
         page_text = document[page.number].get_textpage().extractText()
-        print(page_text)
+        #print(page_text)
         #page_text = document[2].get_textpage().extractWORDS()
         
         
@@ -90,27 +90,28 @@ entire_paper_text = ""
 # Iterate through each page
 for page_number in range(pdf_document.page_count):
     page = pdf_document.load_page(page_number)
-    page_text = page.get_text()
-
+    page_text = page.get_textpage().extractText()
     # Append the text from the current page to the entire paper text
     entire_paper_text += page_text
 
+
 # Find the positions of "package" or "packages" in the entire paper text
-package_positions = [match.start() for match in re.finditer(r'\b[Pp]ackages?\b', entire_paper_text, re.IGNORECASE)]
-print(len(package_positions))
+package_positions = [match.start() for match in re.finditer(r'\b\D?[Pp]ackages?\b', entire_paper_text, re.IGNORECASE)]
 # Extract the surrounding text for further investigation
 surrounding_text = []
+
 for position in package_positions:
     # Define the number of characters to include before and after the word
 
-    context_length = longest_r_package_name + 5  # Adjust this value as needed
+    context_length = longest_r_package_name  # Adjust this value as needed
     #context_length = int(average_package_length) + 5
     # Extract the surrounding text
     start = max(0, position - context_length)
     end = min(len(entire_paper_text), position + context_length + len("packages"))
     context = entire_paper_text[start:end]
-
+    
     surrounding_text.append(context)
+    
 #print(surrounding_text)
 # Define the regex pattern to match words in single or double quotes
 
@@ -120,6 +121,7 @@ text = "".join(surrounding_text)
 #print(text)
 # Use re.findall to find all words in quotes in the text
 found_words = re.findall(pattern, text)
+print(text)
 print(found_words)
 
 
@@ -136,6 +138,9 @@ for word in new_text:
         r_packages_used.append(word)
 
 print(r_packages_used)
+
+## PROBLEM: WHAT IF PACKAGE IS FROM GITHUB AND NOT LISTED IN CRAN NOR BIOCONDUCTOR???
+## MAYBE PRINT ALL WORDS WHICH ARE NEXT TO PACKAGE NAME INTO A SEPERATE LIST 
 
 # Print the surrounding text for each occurrence of "package" or "packages"
 # for i, context in enumerate(surrounding_text, 1):
