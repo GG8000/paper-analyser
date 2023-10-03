@@ -4,6 +4,7 @@ import glob
 import os
 from helper import scrape_packages
 import re
+import statistics
 
 
 
@@ -66,6 +67,14 @@ def search_pdfs_for_keywords():
 
 # Predefined list of R packages
 r_packages = scrape_packages()
+longest_r_package_name = -1
+average_package_length = sum( map(len, r_packages) ) / len(r_packages)
+median_package_length = statistics.median(map(len,r_packages))
+for package in r_packages:
+     if len(package) > longest_r_package_name:
+          longest_r_package_name = len(package)
+
+#print(longest_r_package_name, average_package_length, median_package_length)
 
 
 # Open the PDF file with PyMuPDF
@@ -87,22 +96,24 @@ for page_number in range(pdf_document.page_count):
     entire_paper_text += page_text
 
 # Find the positions of "package" or "packages" in the entire paper text
-package_positions = [match.start() for match in re.finditer(r'\bpackages?\b', entire_paper_text, re.IGNORECASE)]
-
+package_positions = [match.start() for match in re.finditer(r'\b[Pp]ackages?\b', entire_paper_text, re.IGNORECASE)]
+print(len(package_positions))
 # Extract the surrounding text for further investigation
 surrounding_text = []
 for position in package_positions:
     # Define the number of characters to include before and after the word
-    context_length = 75  # Adjust this value as needed
 
+    context_length = longest_r_package_name + 5  # Adjust this value as needed
+    #context_length = int(average_package_length) + 5
     # Extract the surrounding text
     start = max(0, position - context_length)
     end = min(len(entire_paper_text), position + context_length + len("packages"))
     context = entire_paper_text[start:end]
 
     surrounding_text.append(context)
-
+#print(surrounding_text)
 # Define the regex pattern to match words in single or double quotes
+
 pattern = r'[“"‘]([^”"’]+)[“"’]*'
 
 text = "".join(surrounding_text)
@@ -114,7 +125,15 @@ print(found_words)
 
 r_packages_used = [word for word in found_words if word in r_packages]
 
-## IMPLEMENT THAT IF found_words is empty, that it should search for package and in that surrounding for the names in the package
+
+print(r_packages_used)
+
+new_text = text.split()
+
+
+for word in new_text:
+    if word in r_packages:
+        r_packages_used.append(word)
 
 print(r_packages_used)
 
