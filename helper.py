@@ -26,11 +26,9 @@ def scrape_packages():
         if(len(name) > 1):
             all_packages.append(name)
 
-    import numpy as np
-    np.random.shuffle(all_packages)
-    output = open("cran_package.csv","a")
-    for package in all_packages:
-         output.write(str(package) + "\n")
+    # output = open("cran_package.csv","a")
+    # for package in all_packages:
+    #      output.write(str(package) + "\n")
 
     return all_packages
 
