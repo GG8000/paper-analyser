@@ -99,21 +99,3 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     result_string = f"{filename} -> " + ", ".join(found_packages)
     print(result_string)
     return result_string
-
-def preparation():
-
-    with open('bioc_cran_packages.txt', 'r') as file:
-        # Read the lines and remove leading/trailing whitespace
-        package_names = [line.strip() for line in file.readlines()]
-
-    # Convert the list to a comma-separated string
-    package_string = ", ".join(package_names)
-
-    r_packages = package_names
-
-    folder_path = "./uploads/"
-    pdf_files = glob.glob(os.path.join(folder_path, '*.pdf'))
-
-    for file in pdf_files:
-        filename = os.path.basename(file)
-        find_r_packages_in_pdf(file, filename,r_packages)
