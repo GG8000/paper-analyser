@@ -1,7 +1,6 @@
 import fitz
 import os
 import re
-from helper import scrape_packages
 import glob
 
 def find_r_packages_in_pdf(pdf_path, filename, r_packages):
@@ -98,22 +97,23 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
 
     # Print the found R packages
     result_string = f"{filename} -> " + ", ".join(found_packages)
-
     print(result_string)
+    return result_string
 
-with open('bioc_cran_packages.txt', 'r') as file:
-    # Read the lines and remove leading/trailing whitespace
-    package_names = [line.strip() for line in file.readlines()]
+def preparation():
 
-# Convert the list to a comma-separated string
-package_string = ", ".join(package_names)
+    with open('bioc_cran_packages.txt', 'r') as file:
+        # Read the lines and remove leading/trailing whitespace
+        package_names = [line.strip() for line in file.readlines()]
 
-r_packages = package_names
+    # Convert the list to a comma-separated string
+    package_string = ", ".join(package_names)
 
-folder_path = "./pdfs/"
-pdf_files = glob.glob(os.path.join(folder_path, '*.pdf'))
+    r_packages = package_names
 
-print("Starting keyword search")
-for file in pdf_files:
-    filename = os.path.basename(file)
-    find_r_packages_in_pdf(file, filename,r_packages)
+    folder_path = "./uploads/"
+    pdf_files = glob.glob(os.path.join(folder_path, '*.pdf'))
+
+    for file in pdf_files:
+        filename = os.path.basename(file)
+        find_r_packages_in_pdf(file, filename,r_packages)
