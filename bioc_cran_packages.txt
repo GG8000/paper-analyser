@@ -957,6 +957,7 @@ SBMLR
 scDataviz
 SpidermiR
 splineTimeR
+LoomExperiment
 AMARETTO
 ASEB
 biodbKegg
@@ -8811,6 +8812,7 @@ ggpicrust2
 ggpie
 ggplate
 ggplot.multistats
+ggplot
 ggplot2
 ggplot2.utils
 ggplot2movies
@@ -9963,6 +9965,7 @@ hypothesis
 hypothesisr
 hypr
 hypsoLoop
+loops
 HyRiM
 hySpc.testthat
 hystar
@@ -13102,6 +13105,7 @@ MultEq
 multfisher
 multgee
 multiActionButton
+
 Multiaovbay
 multiApply
 multiAssetOptions
@@ -13829,6 +13833,7 @@ nprobust
 nproc
 npROCRegression
 nprotreg
+procRastination
 npsf
 npsr
 npsurv
@@ -14383,6 +14388,7 @@ pald
 paleobuddy
 paleomorph
 paleotree
+apply-family
 paleoTS
 paletteer
 paletteknife
@@ -15292,6 +15298,7 @@ postdoc
 posterdown
 posterior
 PosteriorBootstrap
+Bootstrapping
 postGGIR
 postHoc
 postinfectious
@@ -21524,6 +21531,7 @@ VGAM
 VGAMdata
 VGAMextra
 vglmer
+glmer
 vhcub
 VHDClassification
 vhica
@@ -21928,6 +21936,7 @@ WordPools
 wordpredictor
 wordPuzzleR
 WordR
+word
 words
 wordsalad
 wordspace
@@ -22156,6 +22165,7 @@ zlib
 zlog
 zmisc
 zoeppritz
+ampvis2
 zoib
 zoid
 zoltr

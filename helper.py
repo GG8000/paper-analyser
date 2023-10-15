@@ -33,3 +33,8 @@ def scrape_packages():
     return all_packages
 
 scrape_packages()
+
+
+## Zeitlicher Trend der Package Nutzung
+## Einzelne Informationen des Papers zugänglich machen, für spätere Auswertungen 
+## Zotero oder Mendeley haben da Möglichkeit von PDFs die Infos auszulesen
