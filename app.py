@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, make_response
 import os
-from pdf_miner_v2 import find_r_packages_in_pdf, visualization_used_packages, extract_publication_year
+from pdf_miner_v2 import find_r_packages_in_pdf, visualization_used_packages, extract_publication_year, get_metadata
 import glob
 from io import StringIO
 import pandas as pd
@@ -53,8 +53,8 @@ def download_csv():
             pub_years.append([filename, pub_year])
     
         # Delete all files in the "uploads" folder after processing
-        #for file in pdf_files:
-        #    os.remove(file)
+        for file in pdf_files:
+           os.remove(file)
         #print(pub_years)
         #print(used_packages)
         df = visualization_used_packages(used_packages, pub_years)
@@ -69,7 +69,6 @@ def download_csv():
         return response
 
     return 'No valid PDF files selected for upload.'
-
 
 
 @app.route('/upload', methods=['POST'])
@@ -105,20 +104,26 @@ def upload():
 
         used_packages = []
         pub_years = []
+        titles = []
+        issns = []
+        journals = []
         for file in pdf_files:
             filename = os.path.basename(file)
-            pub_year = extract_publication_year(file)
+            #pub_year = extract_publication_year(file)
             #pub_year = get_publication_year_from_doi(doi)
             result = find_r_packages_in_pdf(file, filename,r_packages)
             used_packages.append([filename,result])
+            title, pub_year, issn, journal = get_metadata(file)
             pub_years.append([filename, pub_year])
-    
+            titles.append([filename, title])
+            issns.append([filename, issn])
+            journals.append([filename, journal])
         # Delete all files in the "uploads" folder after processing
-        #for file in pdf_files:
-        #    os.remove(file)
+        for file in pdf_files:
+            os.remove(file)
         #print(pub_years)
         #print(used_packages)
-        df = visualization_used_packages(used_packages, pub_years)
+        df = visualization_used_packages(used_packages, pub_years, titles, issns, journals)
         # Downloading df as csv
         # csv_data = df.to_csv(index=True, sep=";")
     

@@ -32,8 +32,28 @@ def scrape_packages():
 
     return all_packages
 
-scrape_packages()
+#scrape_packages()
 
+def download_from_doi():
+    from scidownl import scihub_download
+    import json
+
+    with open("publications_bibsonomy.json", "r") as json_file:
+        data = json.load(json_file)
+
+    for key, entry in data.items():
+        doi = entry.get("DOI", entry.get("doi", "N/A"))
+        title = entry.get("title", "N/A")
+        journal = entry.get("container-title", "N/A")
+        
+        paper_type = "doi"
+        out = f"./upload/{title[0:10]}.pdf"
+        proxies = {
+            'http': 'socks5://127.0.0.1:7890'
+        }
+        scihub_download(doi, paper_type=paper_type, out=out, proxies=proxies)
+
+download_from_doi()
 
 ## Zeitlicher Trend der Package Nutzung
 ## Einzelne Informationen des Papers zugänglich machen, für spätere Auswertungen 

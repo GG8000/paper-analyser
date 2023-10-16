@@ -1,9 +1,83 @@
 import fitz
+import json
 import os
 import re
 import requests
 import glob
 import pandas as pd
+import PyPDF2
+import crossref_commons.retrieval
+from difflib import SequenceMatcher
+
+def get_data_from_bibsonomy_export():
+    # Load the JSON file
+    with open("publications_bibsonomy.json", "r") as json_file:
+        data = json.load(json_file)
+    pubs = []
+    # Iterate through the JSON objects and extract the desired information
+    for key, entry in data.items():
+        doi = entry.get("DOI", entry.get("doi", "N/A"))
+        title = entry.get("title", "N/A")
+        journal = entry.get("container-title", "N/A")
+        pubs.append({
+            "title":title,
+            "doi":doi,
+            "journal": journal,
+        })
+    return pubs
+
+
+def get_metadata(pdf_path):
+    pdf = PyPDF2.PdfFileReader(open(pdf_path, "rb"))
+    metadata = pdf.getDocumentInfo()
+    pubs = get_data_from_bibsonomy_export()
+    #print(metadata)
+    try:
+        doi = metadata.get("/doi")
+        title = metadata.get("/Title")
+        year = metadata.get("/CreationDate")
+        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][0]
+        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)["container-title"][0]
+    except:
+        title = metadata.get("/Title")
+
+        doi = get_doi_by_title(title)
+        year = metadata.get("/CreationDate")
+        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][0]
+        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)["container-title"][0]
+    
+    return title, year[2:6], journal_issn, journal_name 
+
+def get_journal_by_title(title_to_find):
+    # Get the data from BibSonomy
+    publications = get_data_from_bibsonomy_export()
+
+    # Search for the title and return the DOI if found
+    for publication in publications:
+        if publication['title'] == title_to_find:
+            return publication['journal']
+
+    # Return None if the title is not found
+    return None
+
+def get_doi_by_title(title_to_find, similarity_threshold=0.8):
+    # Get the data from BibSonomy
+    publications = get_data_from_bibsonomy_export()
+
+    # Search for the title and return the DOI if found
+    for publication in publications:
+        title = publication['title']
+        similarity = title_similarity(title, title_to_find)
+        if similarity >= similarity_threshold:
+            return publication['doi']
+
+    # Return None if the title is not found
+    return None
+
+def title_similarity(title1, title2):
+    # Calculate the similarity between two titles using SequenceMatcher
+    return SequenceMatcher(None, title1, title2).ratio()
+
 def extract_publication_year(pdf_path):
     doc = fitz.open(pdf_path)
 
@@ -64,6 +138,8 @@ def extract_year_from_date_str(date_str):
         if part.isnumeric() and 1900 <= int(part) <= 2100:
             return int(part)
     return None
+
+
 def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     found_packages = set()
 
@@ -162,7 +238,7 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     return found_packages
 
 
-def visualization_used_packages(data, years):
+def visualization_used_packages(data, years, titles, issns, journals):
     # Extract unique package names
     unique_packages = set(package for _, packages in data for package in packages)
     
@@ -181,6 +257,12 @@ def visualization_used_packages(data, years):
         year_value = years[i][1]
         data_dict['published_in'][i] = int(year_value) if year_value is not None else 0  # Set the year column value as an integer
     
+    # Add titles as a new column
+    data_dict['title'] = [title for _, title in titles]
+    data_dict['journal'] = [journal for _, journal in journals]
+    data_dict['issn'] = [issn for _, issn in issns]
+    
+
     # Create the DataFrame
     df = pd.DataFrame(data_dict)
     
