@@ -53,7 +53,7 @@ def download_from_doi():
         }
         scihub_download(doi, paper_type=paper_type, out=out, proxies=proxies)
 
-download_from_doi()
+#download_from_doi()
 
 ## Zeitlicher Trend der Package Nutzung
 ## Einzelne Informationen des Papers zugänglich machen, für spätere Auswertungen 
