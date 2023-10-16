@@ -272,5 +272,8 @@ def visualization_used_packages(data, years, titles, issns, journals):
     # Reorder the columns
     df = df[['published_in'] + [col for col in df if col != 'published_in']]
     
+    df = df.style.set_table_attributes('class="dataframe"')
+
     return df
+
     
