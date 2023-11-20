@@ -27,7 +27,7 @@ It's recommended to create a virtual environment to manage project dependencies.
 2. Navigate to the project directory:
 
 ```bash
-cd /path/to/pdf-processing-app
+cd /path/to/paper-analyser
 ```
     Create a virtual environment (replace "venv" with your preferred environment name):
 
@@ -45,7 +45,11 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-    You can now run the application within the virtual environment.
+    You can now run the application within the virtual environment:
+
+```bash
+python3 app.py
+```
 
     To deactivate the virtual environment when you're done:
 
@@ -77,6 +81,10 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
     You can now run the application within the virtual environment.
+
+```bash
+python3 app.py
+```
 
     To deactivate the virtual environment when you're done:
 ```bash
