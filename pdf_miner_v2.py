@@ -26,14 +26,32 @@ def get_data_from_bibsonomy_export():
         })
     return pubs
 
+def extract_doi(data):
+    if data.get("/doi") != None:
+        return data.get("/doi")
+    elif data.get("doi") != None:
+        return data.get("doi")
+    else:
+        # Extract DOI using regular expression
+        doi_pattern = re.compile(r'doi:\s*10\.\d{4,}/\S+')
+        matches = doi_pattern.search(data.get('/Subject', ''))
+
+        if matches:
+            return matches.group()
+        else:
+            return ""
+
+
 
 def get_metadata(pdf_path):
-    pdf = PyPDF2.PdfFileReader(open(pdf_path, "rb"))
-    metadata = pdf.getDocumentInfo()
+    pdf = PyPDF2.PdfReader(pdf_path)
+    metadata = pdf.metadata
+    #print(metadata)
     pubs = get_data_from_bibsonomy_export()
     #print(metadata)
     try:
-        doi = metadata.get("/doi")
+        doi = extract_doi(metadata)
+        print(doi)
         title = metadata.get("/Title")
         year = metadata.get("/CreationDate")
         journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][0]
@@ -238,7 +256,7 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     return found_packages
 
 
-def visualization_used_packages(data, years, titles, issns, journals):
+def visualization_used_packages(data, years, titles, issns, journals, upload):
     # Extract unique package names
     unique_packages = set(package for _, packages in data for package in packages)
     
@@ -271,8 +289,8 @@ def visualization_used_packages(data, years, titles, issns, journals):
     
     # Reorder the columns
     df = df[['published_in'] + [col for col in df if col != 'published_in']]
-    
-    df = df.style.set_table_attributes('class="dataframe"')
+    if(upload):
+        df = df.style.set_table_attributes('class="dataframe"')
 
     return df
 

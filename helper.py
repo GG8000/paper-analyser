@@ -58,3 +58,22 @@ def download_from_doi():
 ## Zeitlicher Trend der Package Nutzung
 ## Einzelne Informationen des Papers zugänglich machen, für spätere Auswertungen 
 ## Zotero oder Mendeley haben da Möglichkeit von PDFs die Infos auszulesen
+
+def create_uploads_folder():
+    import os
+    # Specify the path to the local repository directory
+    repo_directory = os.getcwd()  
+
+    # Specify the name of the uploads folder
+    uploads_folder = "uploads"
+
+    # Combine the repository directory and the uploads folder path
+    uploads_path = os.path.join(repo_directory, uploads_folder)
+
+    # Check if the uploads folder exists
+    if not os.path.exists(uploads_path):
+        # If not, create the uploads folder
+        os.makedirs(uploads_path)
+        print(f"The '{uploads_folder}' folder has been created.")
+    else:
+        print(f"The '{uploads_folder}' folder already exists.")
