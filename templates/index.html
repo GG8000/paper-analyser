@@ -14,19 +14,13 @@
 </head>
 
 <body>
-    <h1>Analyse Paper for used R-Packages</h1>
-    <h2>If you want to have an overview in the browser use this form</h2>
+    <h1>Analyze Paper for used R-Packages</h1>
     <form method="POST" action="/upload" enctype="multipart/form-data">
-        <input type="file" name="pdf_files[]" multiple accept=".pdf">
-        <button type="submit">Upload</button>
+        <input type="file" name="pdf_files[]" multiple accept=".pdf" lang="en">
+        <button type="submit">Analyze</button>
     </form>
-    <h2>If you want to process the data and download it as a csv-File, use this form</h2>
 
-    <form method="POST" action="/download" enctype="multipart/form-data">
-        <input type="file" name="pdf_files[]" multiple accept=".pdf">
-        <button type="submit">Make CSV</button>
-    </form>
-    
+
 </body>
 
 </html>

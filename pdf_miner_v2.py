@@ -8,6 +8,8 @@ import pandas as pd
 import PyPDF2
 import crossref_commons.retrieval
 from difflib import SequenceMatcher
+from nltk.corpus import wordnet
+
 
 def get_data_from_bibsonomy_export():
     # Load the JSON file
@@ -19,12 +21,15 @@ def get_data_from_bibsonomy_export():
         doi = entry.get("DOI", entry.get("doi", "N/A"))
         title = entry.get("title", "N/A")
         journal = entry.get("container-title", "N/A")
-        pubs.append({
-            "title":title,
-            "doi":doi,
-            "journal": journal,
-        })
+        pubs.append(
+            {
+                "title": title,
+                "doi": doi,
+                "journal": journal,
+            }
+        )
     return pubs
+
 
 def extract_doi(data):
     if data.get("/doi") != None:
@@ -33,8 +38,8 @@ def extract_doi(data):
         return data.get("doi")
     else:
         # Extract DOI using regular expression
-        doi_pattern = re.compile(r'doi:\s*10\.\d{4,}/\S+')
-        matches = doi_pattern.search(data.get('/Subject', ''))
+        doi_pattern = re.compile(r"doi:\s*10\.\d{4,}/\S+")
+        matches = doi_pattern.search(data.get("/Subject", ""))
 
         if matches:
             return matches.group()
@@ -42,29 +47,37 @@ def extract_doi(data):
             return ""
 
 
-
 def get_metadata(pdf_path):
     pdf = PyPDF2.PdfReader(pdf_path)
     metadata = pdf.metadata
-    #print(metadata)
+    # print(metadata)
     pubs = get_data_from_bibsonomy_export()
-    #print(metadata)
+    # print(metadata)
     try:
         doi = extract_doi(metadata)
         print(doi)
         title = metadata.get("/Title")
         year = metadata.get("/CreationDate")
-        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][0]
-        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)["container-title"][0]
+        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][
+            0
+        ]
+        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)[
+            "container-title"
+        ][0]
     except:
         title = metadata.get("/Title")
 
         doi = get_doi_by_title(title)
         year = metadata.get("/CreationDate")
-        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][0]
-        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)["container-title"][0]
-    
-    return title, year[2:6], journal_issn, journal_name 
+        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][
+            0
+        ]
+        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)[
+            "container-title"
+        ][0]
+
+    return title, year[2:6], journal_issn, journal_name
+
 
 def get_journal_by_title(title_to_find):
     # Get the data from BibSonomy
@@ -72,11 +85,12 @@ def get_journal_by_title(title_to_find):
 
     # Search for the title and return the DOI if found
     for publication in publications:
-        if publication['title'] == title_to_find:
-            return publication['journal']
+        if publication["title"] == title_to_find:
+            return publication["journal"]
 
     # Return None if the title is not found
     return None
+
 
 def get_doi_by_title(title_to_find, similarity_threshold=0.8):
     # Get the data from BibSonomy
@@ -84,33 +98,35 @@ def get_doi_by_title(title_to_find, similarity_threshold=0.8):
 
     # Search for the title and return the DOI if found
     for publication in publications:
-        title = publication['title']
+        title = publication["title"]
         similarity = title_similarity(title, title_to_find)
         if similarity >= similarity_threshold:
-            return publication['doi']
+            return publication["doi"]
 
     # Return None if the title is not found
     return None
+
 
 def title_similarity(title1, title2):
     # Calculate the similarity between two titles using SequenceMatcher
     return SequenceMatcher(None, title1, title2).ratio()
 
+
 def extract_publication_year(pdf_path):
     doc = fitz.open(pdf_path)
 
     # Regular expression pattern to match "Accepted" or "Published" dates
-    date_pattern = r'(Accepted|Published|Received):\s+(\d{1,2}\s+\w+\s+\d{4})'
-    
+    date_pattern = r"(Accepted|Published|Received):\s+(\d{1,2}\s+\w+\s+\d{4})"
+
     accepted_year = None
     published_year = None
     text = ""
-    
+
     for page_num in range(min(2, doc.page_count)):
         page = doc[page_num]
         text += page.get_text()
         date_matches = re.findall(date_pattern, text)
-        
+
         for match in date_matches:
             event, date_str = match
             if event.lower() == "accepted":
@@ -123,16 +139,16 @@ def extract_publication_year(pdf_path):
                     accepted_year = received_year
 
         # Check for the "YYYY The Authors" pattern
-        year_authors_match = re.search(r'(\d{4}) The Author(\(s\))?', text)
+        year_authors_match = re.search(r"(\d{4}) The Author(\(s\))?", text)
         if year_authors_match:
             year = int(year_authors_match.group(1))
             if accepted_year is None:
                 accepted_year = year
             if published_year is None:
                 published_year = year
-        
-         # Check for the "(YYYY)" pattern
-        parentheses_year_match = re.search(r'\((\d{4})\)', text)
+
+        # Check for the "(YYYY)" pattern
+        parentheses_year_match = re.search(r"\((\d{4})\)", text)
         if parentheses_year_match:
             year = int(parentheses_year_match.group(1))
             if accepted_year is None:
@@ -149,6 +165,7 @@ def extract_publication_year(pdf_path):
     else:
         return None  # Year not found in publication_years
 
+
 def extract_year_from_date_str(date_str):
     # Extract the year from the matched date string
     date_parts = date_str.split()
@@ -158,7 +175,7 @@ def extract_year_from_date_str(date_str):
     return None
 
 
-def find_r_packages_in_pdf(pdf_path, filename, r_packages):
+def find_r_packages_in_pdf(pdf_path, filename, r_packages, all_words):
     found_packages = set()
 
     # Open the PDF file with PyMuPDF
@@ -191,7 +208,7 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
             for j in range(max(0, i - 5), min(i + 11, len(words))):
                 if words[j].lower() == "and":
                     if entire_paper_text[j] == ")":
-                            has_and_and_bracket = True
+                        has_and_and_bracket = True
                     else:
                         has_and = True
                     break
@@ -217,8 +234,14 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     for match in matches:
         word_in_quotes = match.group(1)
         # Check if the word in quotes is within the specified range of "package" or "packages"
-        for j in range(max(0, match.start() - 5), min(match.end() + 5, len(entire_paper_text))):
-            if entire_paper_text[j:j+len(word_in_quotes)].lower() == word_in_quotes.lower() and word_in_quotes in r_packages:
+        for j in range(
+            max(0, match.start() - 5), min(match.end() + 5, len(entire_paper_text))
+        ):
+            if (
+                entire_paper_text[j : j + len(word_in_quotes)].lower()
+                == word_in_quotes.lower()
+                and word_in_quotes in r_packages
+            ):
                 has_and = False
                 has_and_and_bracket = False
                 # Look for "and" within the range
@@ -232,12 +255,20 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
                 # Expand the search range for two more words if "and" is found
                 if has_and:
                     for m in range(max(0, j - 5), min(j + 13, len(entire_paper_text))):
-                        if entire_paper_text[m:m+len(word_in_quotes)].lower() == word_in_quotes.lower() and word_in_quotes in r_packages:
+                        if (
+                            entire_paper_text[m : m + len(word_in_quotes)].lower()
+                            == word_in_quotes.lower()
+                            and word_in_quotes in r_packages
+                        ):
                             found_packages.append(word_in_quotes)
                             break
                 elif has_and_and_bracket:
                     for m in range(max(0, j - 5), min(j + 17, len(entire_paper_text))):
-                        if entire_paper_text[m:m+len(word_in_quotes)].lower() == word_in_quotes.lower() and word_in_quotes in r_packages:
+                        if (
+                            entire_paper_text[m : m + len(word_in_quotes)].lower()
+                            == word_in_quotes.lower()
+                            and word_in_quotes in r_packages
+                        ):
                             found_packages.append(word_in_quotes)
                             break
                 else:
@@ -249,49 +280,52 @@ def find_r_packages_in_pdf(pdf_path, filename, r_packages):
     # Sort "and" out
     found_packages = [word for word in found_packages if word != "and"]
 
+    possible_non_packages = []
     # Print the found R packages
-    #result_string = f"{filename} -> " + ", ".join(found_packages)
-    #print(result_string)
-    
-    return found_packages
+    # result_string = f"{filename} -> " + ", ".join(found_packages)
+    # print(result_string)
+    for p in found_packages:
+        if p.lower() in all_words or wordnet.synsets(p):
+            possible_non_packages.append(p)
+
+    return found_packages, possible_non_packages
 
 
 def visualization_used_packages(data, years, titles, issns, journals, upload):
     # Extract unique package names
     unique_packages = set(package for _, packages in data for package in packages)
-    
+
     # Create a dictionary to store the data
     data_dict = {}
-    
+
     # Initialize data_dict with zeros for each package and a year column
     for package in unique_packages:
         data_dict[package] = [0] * len(data)
-    data_dict['published_in'] = [0] * len(data)  # Initialize the year column
-    
+    data_dict["published_in"] = [0] * len(data)  # Initialize the year column
+
     # Iterate through the data to populate the data_dict
     for i, (paper_name, packages) in enumerate(data):
         for package in packages:
             data_dict[package][i] = 1
         year_value = years[i][1]
-        data_dict['published_in'][i] = int(year_value) if year_value is not None else 0  # Set the year column value as an integer
-    
+        data_dict["published_in"][i] = (
+            int(year_value) if year_value is not None else 0
+        )  # Set the year column value as an integer
+
     # Add titles as a new column
-    data_dict['title'] = [title for _, title in titles]
-    data_dict['journal'] = [journal for _, journal in journals]
-    data_dict['issn'] = [issn for _, issn in issns]
-    
+    data_dict["title"] = [title for _, title in titles]
+    data_dict["journal"] = [journal for _, journal in journals]
+    data_dict["issn"] = [issn for _, issn in issns]
 
     # Create the DataFrame
     df = pd.DataFrame(data_dict)
-    
+
     # Set the paper names as the index
     df.index = [paper_name for paper_name, _ in data]
-    
+
     # Reorder the columns
-    df = df[['published_in'] + [col for col in df if col != 'published_in']]
-    if(upload):
+    df = df[["published_in"] + [col for col in df if col != "published_in"]]
+    if upload:
         df = df.style.set_table_attributes('class="dataframe"')
 
     return df
-
-    

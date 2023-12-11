@@ -38,6 +38,70 @@
 <body>
     <h1>Ergebnis:</h1>
     {{ dataframe | safe }}
+    {% if caution_packages is defined and caution_packages|length > 0 %}
+    <p>Caution: These packages are common english words. Check if they are really used for analysis.
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Paper</th>
+                <th>Packages</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in caution_packages %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                {% for package in row[1]%}
+                <td>{{ package }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <button id="download-btn">Download</button>
 </body>
+<script>
+    document.getElementById('download-btn').addEventListener('click', function () {
+        var table = document.querySelector('table');
+        var rows = table.querySelectorAll('tr');
+
+        // Initialize CSV content
+        var csvContent = "";
+
+        // Loop through rows and cells to build CSV content
+        rows.forEach(function (row) {
+            var cells = row.querySelectorAll('th, td');
+            var rowArray = [];
+            cells.forEach(function (cell) {
+                rowArray.push('"' + cell.innerText + '"');
+            });
+            csvContent += rowArray.join(';') + '\n';
+        });
+
+        // Create a Blob containing the CSV content
+        var blob = new Blob([csvContent], { type: 'text/csv' });
+
+        // Create a link element
+        var a = document.createElement('a');
+
+        // Set the link's href attribute to a data URL representing the Blob
+        a.href = URL.createObjectURL(blob);
+
+        // Set the link's download attribute to the desired filename
+        a.download = 'table_data.csv';
+
+        // Append the link to the document body
+        document.body.appendChild(a);
+
+        // Trigger a click event on the link
+        a.click();
+
+        // Remove the link from the document
+        document.body.removeChild(a);
+    });
+</script>
+
 
 </html>
