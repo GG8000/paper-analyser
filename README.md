@@ -11,93 +11,61 @@ These instructions will help you set up and run the application on your local ma
 You'll need to have the following software and libraries installed:
 
 - Python 3.x
-- Flask
-- pdfminer.six
-- PyMuPDF (fitz)
-- pandas
 
 ### Using a Virtual Environment
 
 It's recommended to create a virtual environment to manage project dependencies. Here's how to do it on different operating systems:
 
-#### macOS and Linux
+#### macOS, Linux and Windows
 
 1. Open your terminal.
 
-2. Navigate to the project directory:
-
+2. Navigate to the project directory and initialize Virtual Environment:
+For macOS and Linux:
 ```bash
 cd /path/to/paper-analyser
-```
-    Create a virtual environment (replace "venv" with your preferred environment name):
-
-```bash
-
 python -m venv venv
 ```
-    Activate the virtual environment:
+For Windows User:
+```bash
+cd C:\path\to\pdf-processing-app
+python -m venv venv
 
+```
+3. Activate the virtual environment:
+For macOS and Linux:
 ```bash
 source venv/bin/activate
 ```
-
-    Install the required packages from the requirements.txt file:
-```bash
-pip install -r requirements.txt
-```
-    You can now run the application within the virtual environment:
-
-```bash
-python3 app.py
-```
-
-    To deactivate the virtual environment when you're done:
-
-```bash
-deactivate
-```
-Windows
-
-    Open your Command Prompt.
-
-    Navigate to the project directory:
-
-```bash
-cd C:\path\to\pdf-processing-app
-```
-    Create a virtual environment (replace "venv" with your preferred environment name):
-
-```bash
-python -m venv venv
-```
-    Activate the virtual environment:
-
+For Windows User:
 ```bash
 venv\Scripts\activate
 ```
-    Install the required packages from the requirements.txt file:
-
+4. Install the required packages from the requirements.txt file:
 ```bash
 pip install -r requirements.txt
 ```
-    You can now run the application within the virtual environment.
-
+5. You can now run the application within the virtual environment:
 ```bash
-python3 app.py
+python app.py
 ```
-
-    To deactivate the virtual environment when you're done:
+6. To deactivate the virtual environment when you're done:
 ```bash
 deactivate
 ```
 
-
 ### Usage
+    After running the web app at Step 5. access the web app by opening your web browser and navigating to the location which is presented in the terminal.
 
-    Access the web app by opening your web browser and navigating to http://localhost:5000/.
+    Click the "Durchsuchen" button and select one or more PDF files to upload. Files must have the .pdf extension.
 
-    Click the "Upload PDF Files" button and select one or more PDF files to upload. Supported files should have the .pdf extension.
+    Click the "Analyze" button to start processing the uploaded PDF files. The application will find R packages mentioned in the papers and print them. After processing, you can click the "Download CSV" button to download the processed data in CSV format.
 
-    Click the "Process PDFs" button to start processing the uploaded PDF files. The application will find R packages mentioned in the papers and extract publication years.
+    This is the format you are getting:
+    | File Name | Published In | Package1 | Package2 | Package3 | Package4 | Package5 | Package6 | Package7 | Title | Journal | ISSN       |
+    |-----------|--------------:|----------|----------|----------|----------|----------|----------|----------|------------|--------------|------------|
+    | file1.pdf |          2022 |        1 |        1 |        0 |        0 |        0 |        0 |        0 | title1 | Journal1        | ISSN1      |
+    | file2.pdf |          2021 |        0 |        0 |        1 |        1 |        0 |        0 |        0 | title2 | Journal2        | ISSN2      |
+    | file3.pdf |          2023 |        0 |        0 |        0 |        0 |        1 |        1 |        1 | title3   | Journal3        | ISSN3      |
 
-    After processing, you can click the "Download CSV" button to download the processed data in CSV format.
+
