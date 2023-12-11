@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response, g
+from flask import Flask, request, render_template
 import os
 import nltk
 from nltk.corpus import words, wordnet
