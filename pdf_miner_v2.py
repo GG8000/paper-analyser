@@ -36,9 +36,11 @@ def extract_doi(data):
         return data.get("/doi")
     elif data.get("doi") != None:
         return data.get("doi")
+    elif data.get("/WPS-ARTICLEDOI") != None:
+        return data.get("/WPS-ARTICLEDOI")
     else:
         # Extract DOI using regular expression
-        doi_pattern = re.compile(r"doi:\s*10\.\d{4,}/\S+")
+        doi_pattern = re.compile(r'\b10\.\d{4,}/[-._;()\/:\w]+\b', re.IGNORECASE)
         matches = doi_pattern.search(data.get("/Subject", ""))
 
         if matches:
@@ -50,20 +52,29 @@ def extract_doi(data):
 def get_metadata(pdf_path):
     pdf = PyPDF2.PdfReader(pdf_path)
     metadata = pdf.metadata
-    # print(metadata)
+    print(metadata)
     pubs = get_data_from_bibsonomy_export()
     # print(metadata)
     try:
         doi = extract_doi(metadata)
-        print(doi)
+
         title = metadata.get("/Title")
+        #doi = get_doi_by_title(title)
         year = metadata.get("/CreationDate")
-        journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][
-            0
-        ]
-        journal_name = crossref_commons.retrieval.get_publication_as_json(doi)[
-            "container-title"
-        ][0]
+        
+        try:
+            journal_issn = crossref_commons.retrieval.get_publication_as_json(doi)["ISSN"][
+                0
+            ]
+        except: 
+            journal_issn = ""
+        
+        try: 
+            journal_name = crossref_commons.retrieval.get_publication_as_json(doi)[
+                "container-title"
+            ][0]
+        except:
+            journal_name = ""
     except:
         title = metadata.get("/Title")
 
