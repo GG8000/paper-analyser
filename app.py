@@ -18,18 +18,6 @@ app = Flask(__name__)
 
 # Check if english words are already downloaded
 def download_nltk_corpus():
-    # try:
-    #     if nltk.corpus.wordnet.fileids():
-    #         print("WordNet is already downloaded.")
-    #     else:
-    #         print("WordNet is not downloaded.")
-    #         nltk.download("wordnet")
-    #     nltk.data.find("corpora/words.zip")
-    # except LookupError:
-    #     print("Downloading NLTK words corpus...")
-    #     nltk.download("words")
-
-    #     # Check if WordNet is downloaded
     nltk.download("words")
     nltk.download("wordnet")
 
