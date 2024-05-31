@@ -13,13 +13,15 @@ from nltk.corpus import wordnet
 
 def get_data_from_bibsonomy_export():
     # Load the JSON file
-    with open("publications_bibsonomy.json", "r") as json_file:
+    with open("publications_bibsonomy.json", "r", encoding='utf-8') as json_file:
         data = json.load(json_file)
     pubs = []
     # Iterate through the JSON objects and extract the desired information
-    for key, entry in data.items():
+    for entry in data:
         doi = entry.get("DOI", entry.get("doi", "N/A"))
         title = entry.get("title", "N/A")
+        if(title == "N/A"):
+            title = entry.get("label", "N/A")
         journal = entry.get("container-title", "N/A")
         pubs.append(
             {

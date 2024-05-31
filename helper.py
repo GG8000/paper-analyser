@@ -1,6 +1,6 @@
 def cutting_dois_into_array(doi_file):
-    doi_arr = doi_file.split();
-    return doi_arr;
+    doi_arr = doi_file.split()
+    return doi_arr
     
 
 def scrape_paper():
@@ -9,7 +9,7 @@ def scrape_paper():
     url = "https://www.sciencedirect.com/science/article/pii/S000632072300277X?via%3Dihub"
     open_page = urllib.request.urlopen(url)
     soup = BeautifulSoup(open_page, "html.parser")
-    section = soup.find_all(attrs={"id" : "s0010"});
+    section = soup.find_all(attrs={"id" : "s0010"})
     print(section.text.strip())
 
 def scrape_packages():
